@@ -6,6 +6,7 @@ class my_svm:
     def __init__(self):
         self.w = None
         self.b = 0
+        self.loss_array = {}
 
     def loss_function(self, X, y, C):
         # Samples
@@ -28,6 +29,7 @@ class my_svm:
     
     def fit(self, X, y, C, epochs, lr):
         n = X.shape[0]
+        
         # Gradient descent
         if self.w is None:
             self.w = np.zeros(X.shape[1])
@@ -37,7 +39,7 @@ class my_svm:
         for batch in range(epochs + 1):
             grad_w = np.zeros_like(self.w)
             grad_b = 0
-
+            
             for i in range(n):
                 margin = y[i] * np.dot(self.w, X[i] + self.b)
 
@@ -47,13 +49,17 @@ class my_svm:
                 
             grad_w += self.w
 
-
             self.w = self.w - (lr * grad_w)
             self.b = self.b - (lr * grad_b)
 
+            loss = float(self.loss_function(X, y, C))
+            self.loss_array[batch] = loss
+            
             if batch % 10 == 0:
-                loss = self.loss_function(X, y, C)
                 print(f'Loss for {batch}th batch: {loss}, Current w: {np.round(self.w, 2)}, Current b: {round(self.b, 2)}')
+                
+
+            
 
     def predict(self, X):
         return np.sign(np.dot(X, self.w) + self.b)
