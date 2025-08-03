@@ -9,7 +9,6 @@ class my_svm:
 
     def loss_function(self, X, y, C):
         # Samples
-        global n
         n = X.shape[0]
 
         # Equation for geometric Margines
@@ -17,7 +16,7 @@ class my_svm:
 
         fi = 0
         # Hinge Loss
-        for i in range(X.shape[0]):
+        for i in range(n):
             fi += max(0, 1 - y[i] * (np.dot(self.w, X[i]) + self.b))
         
 
@@ -28,34 +27,34 @@ class my_svm:
 
     
     def fit(self, X, y, C, epochs, lr):
+        n = X.shape[0]
         # Gradient descent
         if self.w is None:
             self.w = np.zeros(X.shape[1])
         
         loss = self.loss_function(X, y, C)
         
-        for batch in range(epochs):
-            grad_w = 0
+        for batch in range(epochs + 1):
+            grad_w = np.zeros_like(self.w)
             grad_b = 0
 
             for i in range(n):
-                loss = self.loss_function(X, y, C)
-                margin = y[i] * np.dot(self.w, X[i].T) + self.b
+                margin = y[i] * np.dot(self.w, X[i] + self.b)
 
                 if margin < 1:
-                    grad_w = self.w - C * y[i] * X[i]
-                    grad_b = -C * y[i]
+                    grad_w += -C * y[i] * X[i]
+                    grad_b += -C * y[i]
                 
-                else:
-                    grad_w = self.w
-                    grad_b = 0
+            grad_w += self.w
 
 
             self.w = self.w - (lr * grad_w)
             self.b = self.b - (lr * grad_b)
 
             if batch % 10 == 0:
-                print(f'Loss for {i}th batch: {loss}, Current w: {self.w}, Current b: {self.b}')
+                loss = self.loss_function(X, y, C)
+                print(f'Loss for {batch}th batch: {loss}, Current w: {np.round(self.w, 2)}, Current b: {round(self.b, 2)}')
 
-
-            
+    def predict(self, X):
+        return np.sign(np.dot(X, self.w) + self.b)
+        
