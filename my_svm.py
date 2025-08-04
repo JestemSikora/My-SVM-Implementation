@@ -54,9 +54,10 @@ class my_svm:
 
             loss = float(self.loss_function(X, y, C))
             self.loss_array[batch] = loss
-            
+
             if batch % 10 == 0:
                 print(f'Loss for {batch}th batch: {loss}, Current w: {np.round(self.w, 2)}, Current b: {round(self.b, 2)}')
+
                 
 
             
